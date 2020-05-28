@@ -19,8 +19,11 @@ INT8 accelY = 0;
 UINT8 tileCollision;
 
 extern UINT8 numBullets;
+struct Sprite *playerPointer = 0;
 
 void Start_SpritePlayer() {
+	playerPointer = THIS;
+
 	THIS->coll_y = 1;
 	THIS->coll_h = 7;
 	THIS->coll_x = 2;
@@ -31,11 +34,11 @@ void Start_SpritePlayer() {
 
 void Update_SpritePlayer() {
 	if (KEY_PRESSED(J_LEFT)) {
-		TranslateSprite(THIS, -1, 0);
+		TranslateSprite(THIS, -1 << delta_time, 0);
 		SPRITE_SET_VMIRROR(THIS);
 	}
 	if (KEY_PRESSED(J_RIGHT)) {
-		TranslateSprite(THIS, 1, 0);
+		TranslateSprite(THIS, 1 << delta_time, 0);
 		SPRITE_UNSET_VMIRROR(THIS);
 	}
 	if (keys == 0) {
@@ -67,10 +70,10 @@ void Update_SpritePlayer() {
 
 	// Gravity
 	if (accelY < 40) {
-		accelY += 2;
+		accelY += 2 << delta_time;
 	}
 
-	tileCollision = TranslateSprite(THIS, 0, accelY >> 4);
+	tileCollision = TranslateSprite(THIS, 0, (accelY >> 4) << delta_time);
 	if (tileCollision) {
 		if (playerState == JUMP && accelY > 0) {
 			playerState = WALK;
@@ -81,4 +84,5 @@ void Update_SpritePlayer() {
 }
 
 void Destroy_SpritePlayer() {
+	playerPointer = 0;
 }

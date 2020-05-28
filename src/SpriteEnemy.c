@@ -1,3 +1,4 @@
+#include "ZGBMain.h"
 #include "Banks/SetBank2.h"
 #include "SpriteManager.h"
 #include <rand.h>
@@ -24,7 +25,7 @@ void Start_SpriteEnemy()
 
 void walk(struct Sprite *sprite, INT8 speed)
 {
-    enemyTileCollision = TranslateSprite(sprite, speed, 0);
+    enemyTileCollision = TranslateSprite(sprite, speed << delta_time, 0);
     if (enemyTileCollision)
     {
         if (SPRITE_GET_VMIRROR(sprite))
@@ -40,7 +41,7 @@ void walk(struct Sprite *sprite, INT8 speed)
 
 void Update_SpriteEnemy()
 {
-    enemyTileCollision = TranslateSprite(THIS, 0, 1);
+    enemyTileCollision = TranslateSprite(THIS, 0, 1 << delta_time);
     if (enemyTileCollision)
     {
         if (SPRITE_GET_VMIRROR(THIS))

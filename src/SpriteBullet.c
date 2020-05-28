@@ -21,7 +21,7 @@ void Update_SpriteBullet() {
 	struct Sprite* spr;
 
     struct BulletInfo *data = (struct BulletInfo *)THIS->custom_data;
-    bulletTileCollision = TranslateSprite(THIS, data->speed, 0);
+    bulletTileCollision = TranslateSprite(THIS, data->speed << delta_time, 0);
     if (bulletTileCollision) {
         SpriteManagerRemove(THIS_IDX);
     }

@@ -1,4 +1,4 @@
-PROJECT_NAME = ZGB_TEMPLATE
+PROJECT_NAME = pocket-game
 
 all: build_gb
 

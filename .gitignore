@@ -206,3 +206,6 @@ paket-files/
 .idea/
 *.sln.iml
 .vscode
+/Emulicious
+/pngb
+/zgb
