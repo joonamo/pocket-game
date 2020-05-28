@@ -1,7 +1,7 @@
 #include "Banks/SetBank2.h"
 
 #include "../res/src/tiles.h"
-#include "../res/src/map.h"
+#include "level1.h"
 
 #include "ZGBMain.h"
 #include "Scroll.h"
@@ -26,7 +26,7 @@ void Start_StateGame() {
 	SHOW_SPRITES;
 
 	InitScrollTiles(0, &tiles);
-	InitScroll(&map, collision_tiles, 0);
+	InitScroll(&level1, collision_tiles, 0);
 	SHOW_BKG;
 
 	// waitpad(0xFF);
@@ -35,6 +35,7 @@ void Start_StateGame() {
 	seed |= (UWORD)DIV_REG << 8;
 	initarand(seed);
 
+	SpriteManagerAdd(SpritePlayer, 80, 120);
 	SpriteManagerAdd(SpriteGhost, 80, 16);
 }
 
