@@ -10,7 +10,6 @@
 #include <gb/gb.h>
 #include <rand.h>
 
-UINT8 collision_tiles[] = {1, 0};
 UINT8 enemySpawnTimer = 128u;
 extern UINT8 numEnemies;
 extern UINT8 evenFrame;
@@ -26,7 +25,7 @@ void Start_StateGame() {
 	SHOW_SPRITES;
 
 	InitScrollTiles(0, &tiles);
-	InitScroll(&level1, collision_tiles, 0);
+	InitScroll(&level1, &level1_collision_tiles, &level1_collision_down_tiles);
 	SHOW_BKG;
 
 	// waitpad(0xFF);

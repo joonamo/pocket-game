@@ -8,6 +8,9 @@
   <image width="8" height="8" source="../asesprite/empty.png"/>
  </tile>
  <tile id="2">
+  <properties>
+   <property name="collision" type="bool" value="true"/>
+  </properties>
   <image width="8" height="8" source="../asesprite/block.png"/>
  </tile>
 </tileset>
