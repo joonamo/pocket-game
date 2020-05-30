@@ -1,5 +1,6 @@
 import json
 import argparse
+import LevelBuilder.imgtogb
 
 def main():
   parser = argparse.ArgumentParser(description="Compiles tiled to gb")
