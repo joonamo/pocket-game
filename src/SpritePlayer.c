@@ -5,6 +5,7 @@
 #include "SpriteManager.h"
 #include "Sprite.h"
 #include "SpriteBullet.h"
+#include "common.h"
 
 const UINT8 anim_idle[] = {1, 0};
 const UINT8 anim_walk[] = {3, 0, 1, 2};
@@ -18,7 +19,6 @@ PLAYER_STATE playerState;
 INT8 accelY = 0;
 UINT8 tileCollision;
 
-extern UINT8 numBullets;
 struct Sprite *playerPointer = 0;
 
 void Start_SpritePlayer() {
@@ -80,6 +80,8 @@ void Update_SpritePlayer() {
 		}
 		accelY = 0;
 	}
+
+	CheckWrapping(THIS);
 
 }
 

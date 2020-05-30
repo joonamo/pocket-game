@@ -7,7 +7,7 @@ STATE_DEF_END
 
 #define SPRITES                     \
   _SPRITE_DMG(SpritePlayer, player) \
-  _SPRITE_DMG(SpriteEnemy, enemy)   \
+  _SPRITE_DMG(SpriteBlob, enemy)   \
   _SPRITE_DMG(SpriteBullet, bullet) \
   _SPRITE_DMG(SpriteGhost, ghost_tiles) \
 SPRITE_DEF_END

@@ -1,7 +1,7 @@
 #ifndef MAP_level1_H
 #define MAP_level1_H
-#define mapWidth 20
-#define mapHeight 18
+#define mapWidth 22
+#define mapHeight 20
 #include "MapInfo.h"
 #include "types.h"
 extern unsigned char bank_level1;

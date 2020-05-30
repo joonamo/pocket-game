@@ -26,6 +26,7 @@ void Start_StateGame() {
 
 	InitScrollTiles(0, &tiles);
 	InitScroll(&level1, &level1_collision_tiles, &level1_collision_down_tiles);
+	MoveScroll(8, 8);
 	SHOW_BKG;
 
 	// waitpad(0xFF);
@@ -52,7 +53,7 @@ void Update_StateGame() {
 			} else {
 				enemySpawnTimer = 255u;
 			}
-			SpriteManagerAdd(SpriteEnemy, 80 + (arand() >> 1), 16);
+			SpriteManagerAdd(SpriteBlob, 80 + (arand() >> 1), 16);
 		}
 	}
 }
