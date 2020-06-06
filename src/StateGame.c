@@ -2,6 +2,7 @@
 
 #include "../res/src/tiles.h"
 #include "level1.h"
+#include "level1_palette.h"
 
 #include "ZGBMain.h"
 #include "Scroll.h"
@@ -17,6 +18,8 @@ extern UINT8 evenFrame;
 void Start_StateGame() {
 	UINT8 i;
 	UINT16 seed;
+
+	SetPalette(BG_PALETTE, 0, 8, &level1_palette, 3);
 
 	SPRITES_8x8;
 	for(i = 0; i != N_SPRITE_TYPES; ++ i) {

@@ -1,19 +1,9 @@
-import argparse
 from imgtogb import read_png
+from source_generator import write_tiledata, write_mapdata, write_palette_data
+
+import argparse
 import xml.etree.ElementTree as XET
 from pathlib import Path
-
-def write_tiles(tiles_data):
-  out = ""
-  for tile in tiles_data:
-    out += "  // " + tile["name"] + "\n"
-    out += "  " + ",".join(tile["hexdata"]) + ",\n"
-  return out
-
-def write_collision_tiles(collision_tiles):
-  if len(collision_tiles) == 0:
-    return "0"
-  return "{" + ", ".join(str(v) for v in collision_tiles) + ", 0}"
 
 def main():
   parser = argparse.ArgumentParser(description="Compiles tiled to gb")
@@ -35,6 +25,7 @@ def main():
   tileset_gid_map = dict()
   seen_tiles_id = 0
   tiles_data = []
+  unique_palettes = []
   collision_tiles = []
   collision_down_tiles = []
 
@@ -48,8 +39,10 @@ def main():
     if root_image is not None:
       # This is single-image tiled map
       root_name = root_image.attrib["source"]
-      (root_tile_data, root_palettes) = read_png(
-        str(tilemap_path.parent.joinpath(root_name)))
+      (root_tile_data, root_palettes, root_palette_data) = read_png(
+        str(tilemap_path.parent.joinpath(root_name)),
+        False,
+        True)
     for tile in tileroot.findall("tile"):
       tile_id = int(tile.attrib["id"])
       tile_gid = tilemap_gid + tile_id
@@ -63,17 +56,27 @@ def main():
       if (root_image is None):
         image = tile.find("image")
         name = image.attrib["source"]
-        (tile_data, palettes) = read_png(
-          str(tilemap_path.parent.joinpath(name)))
+        (tile_data, palettes, palette_data) = read_png(
+          str(tilemap_path.parent.joinpath(name)),
+          False,
+          True)
       else:
         name = root_name + "@" + str(tile_id)
         start_offset = tile_id * 16
         tile_data = root_tile_data[start_offset : (start_offset + 16)]
-        palettes = root_palettes
+        palette_start_offset = root_palettes[tile_id]
+        palette_data = root_palette_data[palette_start_offset : palette_start_offset + 4]
+
+      if palette_data in unique_palettes:
+        palette_idx = unique_palettes.index(palette_data)
+      else:
+        palette_idx = len(unique_palettes)
+        unique_palettes.append(palette_data)
+
       tile_entry = {
         "name": name + " gid " + str(tile_gid),
         "hexdata": [hex(v).rjust(4, " ") for v in tile_data],
-        "palettes": palettes
+        "palette_idx": palette_idx
       }
       tiles_data.append(tile_entry)
       seen_tiles_id += 1
@@ -81,87 +84,16 @@ def main():
   map_name = args.infile.split("/")[-1].split(".")[0]
   map_data = ",".join([hex(tileset_gid_map[v]) for v in level_data])
 
-  # write map
-  with open(outfile + ".b" + bank + ".c", "w") as file:
-    file.write("\
-#pragma bank 3\n\
-\n\
-void empty(void) __nonbanked {}\n\
-__addressmod empty const CODE;\n\
-\n\
-const unsigned char " + map_name + "_map[] = {  \n\
-  " + map_data + " \n\
-};\n\
-#include \"" + map_name + "_tiles.h\"\n\
-#include \"MapInfo.h\"\n\
-#include \"types.h\"\n\
-const struct MapInfoInternal " + map_name + "_internal = {\n\
-	" + map_name + "_map, //map\n\
-	" + map_width + ", //width\n\
-	" + map_height + ", //height\n\
-	0, //attributes\n\
-	&" + map_name + "_tiles, //tiles info\n\
-};\n\
-CODE struct MapInfo " + map_name + " = {\n\
-	3, //bank\n\
-	&" + map_name + "_internal, //data\n\
-};\n\
-CODE UINT8 " + map_name + "_collision_tiles[] = " + write_collision_tiles(collision_tiles) + ";\n\
-CODE UINT8 " + map_name + "_collision_down_tiles[] = " + write_collision_tiles(collision_down_tiles) + ";\n\
-\n\
-")
+  write_mapdata(outfile,
+    bank,
+    map_data,map_width,
+    map_height,
+    map_name,
+    collision_tiles,
+    collision_down_tiles)
+  write_tiledata(outfile, bank, tiles_data, map_name)
+  write_palette_data(outfile, bank, map_name, unique_palettes)
 
-  # write map header
-  with open(outfile + ".h", "w") as file:
-    file.write("\
-#ifndef MAP_" + map_name + "_H\n\
-#define MAP_" + map_name + "_H\n\
-#define mapWidth " + map_width + "\n\
-#define mapHeight " + map_height + "\n\
-#include \"MapInfo.h\"\n\
-#include \"types.h\"\n\
-extern unsigned char bank_" + map_name + ";\n\
-extern struct MapInfo " + map_name + ";\n\
-extern UINT8 " + map_name + "_collision_tiles;\n\
-extern UINT8 " + map_name + "_collision_down_tiles;\n\
-#endif\n\
-")  
-  
-  # write tiledata
-  with open(outfile + "_tiles.b" + bank + ".c", "w") as file:
-    file.write("\
-#pragma bank 3\n\
-\n\
-void empty(void) __nonbanked {}\n\
-__addressmod empty const CODE;\n\
-\n\
-const unsigned char " + map_name + "_tiles_data[] = {\n\
-" + write_tiles(tiles_data) + "};\n\
-\n\
-#include \"TilesInfo.h\"\n\
-const struct TilesInfoInternal " + map_name + "_tiles_internal = {\n\
-	8, //width\n\
-	8, //height\n\
-	" + str(len(tiles_data)) + ", //num_tiles\n\
-	" + map_name + "_tiles_data, //tiles\n\
-	0, //CGB palette\n\
-};\n\
-CODE struct TilesInfo " + map_name + "_tiles = {\n\
-	" + bank + ", //bank\n\
-	&" + map_name + "_tiles_internal, //data\n\
-};\n\
-")
-
-  # write tiledata header
-  with open(outfile + "_tiles.h", "w") as file:
-    file.write("\
-#ifndef TILES_" + map_name + "_tiles_H\n\
-#define TILES_" + map_name + "_tiles_H\n\
-#include \"TilesInfo.h\"\n\
-extern unsigned char bank" + map_name + "_tiles;\n\
-extern struct TilesInfo " + map_name + "_tiles;\n\
-#endif\n\
-")
 
 if __name__ == "__main__":
     main()

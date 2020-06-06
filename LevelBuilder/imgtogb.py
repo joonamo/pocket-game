@@ -22,13 +22,14 @@ def convert_tile(data, x, y):
     out.append(b1)
   return tuple(out)
 
-def read_palette_image(path, colors):
+def read_palette_image(path):
+  colors = []
   source = png.Reader(path)
   width, height, data_map, meta = source.read()
   palette_map = []
 
   if width != 4:
-    raise ValueError("Palette image must be 4 pixels wide.")
+    raise ValueError("Palette image must be 4 pixels wide it was", width)
   if "palette" not in meta:
     raise ValueError("Palette image must be indexed.")
 
@@ -48,7 +49,7 @@ def read_palette_image(path, colors):
     x = list(color_map[i] for i in data[:,iy])
     palette_map.append(x)
 
-  return colors, palette_map
+  return [[rgb_to_5bit(*colors[i]) for i in palette] for palette in palette_map]
 
 def make_color_palettes(data, colors, palette_map, tiles_x, tiles_y):
 	palettes = []
@@ -79,7 +80,7 @@ def make_color_palettes(data, colors, palette_map, tiles_x, tiles_y):
 
 	return palettes, palette_map
 
-def rgb_to_5bit(r, g, b):
+def rgb_to_5bit(r, g, b, a = None):
   r = round(r  / 255 * 31)
   g = round(g  / 255 * 31)
   b = round(b  / 255 * 31)
@@ -106,7 +107,7 @@ def convert_tile_color(data, palette, x, y):
 		out.append(b1)
 	return tuple(out)
 
-def read_png(path, s8x16 = False, color = False, include_palette = False):
+def read_png(path, s8x16 = False, color = False, include_palette = None):
   palette_offset = 0
   source = png.Reader(path)
   width, height, data_map, meta = source.read()
@@ -127,7 +128,7 @@ def read_png(path, s8x16 = False, color = False, include_palette = False):
   if color:
     palette_map = []
     if include_palette:
-      colors, palette_map = read_palette_image(include_palette, colors)
+      colors, palette_map = read_palette_image(path, colors)
 
     palettes, palette_map = make_color_palettes(data, colors, palette_map, tiles_x, tiles_y)
     tile_data = [convert_tile_color(data, palette_map[palettes[t[0]+t[1]*tiles_x]], t[0], t[1]) for t in tileorder]
@@ -161,7 +162,7 @@ def read_png(path, s8x16 = False, color = False, include_palette = False):
     palettes = [i + palette_offset for i in palettes]
 
   tile_data = np.fromiter(itertools.chain.from_iterable(tile_data), np.uint8)
-  return (tile_data, palettes)
+  return (tile_data, palettes, palette_data)
 
     # if args.correct_lcd:
     #   lcd_map = lcd.build_lcd_map()
