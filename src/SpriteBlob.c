@@ -6,7 +6,8 @@
 
 // Shared between enemies, why not
 UINT8 blobTileCollision;
-const UINT8 anim_blobWalk[] = {3, 0, 1, 2};
+const UINT8 anim_blobWalk[] = {6, 0, 1, 2, 3, 4, 5};
+const UINT8 anim_blobFall[] = {2, 6, 7};
 
 void Start_SpriteBlob()
 {

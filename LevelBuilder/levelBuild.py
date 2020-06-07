@@ -96,4 +96,4 @@ def main():
   write_palette_data(outfile, bank, map_name, unique_palettes)
 
 if __name__ == "__main__":
-    main()
+  main()
