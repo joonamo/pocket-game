@@ -22,7 +22,9 @@ void Update_SpriteGhost()
 
   y_diff = THIS->y - playerPointer->y;
   
-  if (playerPointer->x != THIS->x & y_diff < WOBBLE && y_diff > -WOBBLE)
+  if (playerPointer->x != THIS->x && 
+    (wobble & 1 || (y_diff < WOBBLE && y_diff > -WOBBLE))
+  )
   {
     if (playerPointer->x < THIS->x)
     {
@@ -30,12 +32,6 @@ void Update_SpriteGhost()
     }
     else
     {
-      THIS->x++;
-    }
-  } else {
-    if (wobble > 0) {
-      THIS->x--;
-    } else {
       THIS->x++;
     }
   }

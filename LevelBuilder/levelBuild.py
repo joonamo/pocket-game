@@ -1,5 +1,5 @@
 from imgtogb import read_png
-from source_generator import write_tiledata, write_mapdata, write_palette_data
+from sourceGenerator import write_tiledata, write_mapdata, write_palette_data
 
 import argparse
 import xml.etree.ElementTree as XET
@@ -9,11 +9,12 @@ def main():
   parser = argparse.ArgumentParser(description="Compiles tiled to gb")
   parser.add_argument("infile", help="level file", type=str)
   parser.add_argument("outfile", help="Output file", type=str)
+  parser.add_argument("-b", "--bank", help="bank", type=str, default="3")
+
   args = parser.parse_args()
   infile = args.infile
   outfile = args.outfile
-
-  bank = "3"
+  bank = args.bank
 
   root = XET.parse(infile).getroot()
   layer = root.find("layer")
@@ -93,7 +94,6 @@ def main():
     collision_down_tiles)
   write_tiledata(outfile, bank, tiles_data, map_name)
   write_palette_data(outfile, bank, map_name, unique_palettes)
-
 
 if __name__ == "__main__":
     main()

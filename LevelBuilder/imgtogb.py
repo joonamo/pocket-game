@@ -22,8 +22,7 @@ def convert_tile(data, x, y):
     out.append(b1)
   return tuple(out)
 
-def read_palette_image(path):
-  colors = []
+def read_palette_image(path, colors):
   source = png.Reader(path)
   width, height, data_map, meta = source.read()
   palette_map = []
@@ -49,6 +48,10 @@ def read_palette_image(path):
     x = list(color_map[i] for i in data[:,iy])
     palette_map.append(x)
 
+  return colors, palette_map
+
+def generate_palette_from_reference_strip(path):
+  colors, palette_map = read_palette_image(path, [])
   return [[rgb_to_5bit(*colors[i]) for i in palette] for palette in palette_map]
 
 def make_color_palettes(data, colors, palette_map, tiles_x, tiles_y):
@@ -128,7 +131,7 @@ def read_png(path, s8x16 = False, color = False, include_palette = None):
   if color:
     palette_map = []
     if include_palette:
-      colors, palette_map = read_palette_image(path, colors)
+      colors, palette_map = read_palette_image(include_palette, colors)
 
     palettes, palette_map = make_color_palettes(data, colors, palette_map, tiles_x, tiles_y)
     tile_data = [convert_tile_color(data, palette_map[palettes[t[0]+t[1]*tiles_x]], t[0], t[1]) for t in tileorder]
